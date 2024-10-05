@@ -1,31 +1,15 @@
 package kr.eme.semiReward.managers
 
-import kr.eme.semiReward.objects.PlayerMissionData
-import org.bukkit.entity.Player
+import kr.eme.semiReward.objects.Mission
 
 object MissionManager {
-    private val missionMap = mutableMapOf<Player, PlayerMissionData>()
+    private val missionMap = HashMap<Int, Mission>()
 
-    /**
-     * 플레이어의 미션 데이터를 불러옴.
-     */
-    fun loadPlayerMission(player: Player, missionId: String, progress: Int) {
-
+    init {
+        missionMap[1] = Mission("Mission 1 - Killed Pig","돼지 5마리를 사냥하세요!")
+        missionMap[2] = Mission("Mission 2 - Killed Cow","소 5마리를 사냥하세요!")
     }
 
-    /**
-     * 미션 상태를 업데이트함.
-     */
-    fun updateMissionProgress(player: Player, missionId: String, progress: Int) {
-        val missionData = missionMap[player] ?: return
-        missionData.updateProgress(missionId, progress)
-    }
-
-    /**
-     * 미션 완료 처리.
-     */
-    fun completeMission(player: Player, missionId: String) {
-        val missionData = missionMap[player] ?: return
-        missionData.completedMission(missionId)
-    }
+    fun getMission(id: Int): Mission? = missionMap[id]
+    fun getMissionList(): List<Mission> = missionMap.values.toList()
 }

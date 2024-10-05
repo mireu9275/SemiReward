@@ -3,36 +3,39 @@ package kr.eme.semiReward.managers
 import org.bukkit.Bukkit
 import org.bukkit.Material
 import org.bukkit.entity.Player
+import org.bukkit.inventory.Inventory
 import org.bukkit.inventory.ItemStack
 
 object GUIManager {
-    fun openRewardGUI(player: Player, page: Int) {
-        val guiSize = 3 * 9 // 3줄
-        val inventory = Bukkit.createInventory(null, guiSize, "도전과제")
-
-        // 임시 미션 아이템
-        for (i in 0 until (guiSize - 9)) {
-            val missionItem = ItemStack(Material.PAPER)
-            val meta = missionItem.itemMeta
-            meta?.setDisplayName("§f미션 ${i + 1 + (page * 18)}")
-            missionItem.itemMeta = meta
-            inventory.setItem(i, missionItem)
-        }
-
-        // 이전페이지, 다음페이지 설정
-        // 좌우 화살표 (이전/다음 페이지)
-        if (page > 0) {
-            inventory.setItem(guiSize - 9, createArrowItem(Material.ARROW, "§a이전 페이지"))
-        }
-        inventory.setItem(guiSize - 1, createArrowItem(Material.ARROW, "§a다음 페이지"))
-        player.openInventory(inventory)
+    fun openMissionGUI(player: Player) {
+        // 추후 config 로 빠질 가능성 있는 변수들...
+        val missionGUISize = 3 * 9
+        val missionGUITitle = "§6§l미션"
+        val inventory = Bukkit.createInventory(null, missionGUISize, missionGUITitle)
     }
+    private fun populateGUI(player: Player, inventory: Inventory) {
+        val playerData = PlayerDataManager.getPlayerData(player.uniqueId)
+        MissionManager.getMissionList().forEachIndexed { index, mission ->
+            val isCompleted = (index + 1) in playerData.completedMissions
+            val item = ItemStack(if (isCompleted) Material.EMERALD_BLOCK else Material.REDSTONE_BLOCK)
+            val meta = item.itemMeta
+            meta?.setDisplayName("§a${mission.name}")
+            meta?.lore = listOf(mission.description)
+            item.itemMeta = meta
+            inventory.setItem(index, item)
+        }
 
-    private fun createArrowItem(material: Material, name: String): ItemStack {
-        val arrowItem = ItemStack(material)
-        val meta = arrowItem.itemMeta
-        meta?.setDisplayName(name)
-        arrowItem.itemMeta = meta
-        return arrowItem
+        // 좌우 스크롤 버튼
+        val leftButton = ItemStack(Material.ARROW)
+        val leftMeta = leftButton.itemMeta
+        leftMeta?.setDisplayName("§e왼쪽으로 이동")
+        leftButton.itemMeta = leftMeta
+        inventory.setItem(18, leftButton)
+
+        val rightButton = ItemStack(Material.ARROW)
+        val rightMeta = rightButton.itemMeta
+        rightMeta?.setDisplayName("§e오른쪽으로 이동")
+        rightButton.itemMeta = rightMeta
+        inventory.setItem(26, leftButton)
     }
 }
