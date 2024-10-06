@@ -11,6 +11,19 @@ object PlayerDataManager {
     private lateinit var dataFile: File
     private lateinit var config: YamlConfiguration
 
+    fun addCurrentPage(uuid: UUID) {
+        val playerData = getPlayerData(uuid)
+        playerData.currentPage += 1
+        playerDataMap[uuid] = playerData
+        println(getPlayerData(uuid))
+    }
+    fun subtractCurrentPage(uuid: UUID) {
+        val playerData = getPlayerData(uuid)
+        if (playerData.currentPage <= 0) return
+        playerData.currentPage -= 1
+        playerDataMap[uuid] = playerData
+    }
+
     fun loadPlayerData() {
         dataFile = File(main.dataFolder, "playerData.yml")
         if (!dataFile.exists()) {
@@ -23,13 +36,15 @@ object PlayerDataManager {
         for (key in config.getKeys(false)) {
             val uuid = UUID.fromString(key)
             val completedMissions = config.getIntegerList("$key.completedMissions").toMutableSet()
-            playerDataMap[uuid] = PlayerData(uuid, completedMissions)
+            val currentPage = config.getInt("$key.currentPage", 0)
+            playerDataMap[uuid] = PlayerData(uuid, completedMissions, currentPage)
         }
     }
 
     fun savePlayerData() {
         for ((uuid, data) in playerDataMap) {
             config.set("$uuid.completedMissions", data.completedMissions.toList())
+            config.set("$uuid.currentPage", data.currentPage)
         }
         config.save(dataFile)
     }

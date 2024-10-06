@@ -1,5 +1,6 @@
 package kr.eme.semiReward.listeners
 
+import kr.eme.semiReward.managers.GUIManager
 import kr.eme.semiReward.managers.MissionManager
 import kr.eme.semiReward.managers.PlayerDataManager
 import org.bukkit.Material
@@ -11,7 +12,7 @@ import org.bukkit.event.inventory.InventoryClickEvent
 object MissionGUIListener : Listener {
     @EventHandler
     fun onInventoryClick(event: InventoryClickEvent) {
-        if (event.view.title != "§6미션") return
+        if (event.view.title != "§6§l미션") return
         event.isCancelled = true
 
         val player = event.whoClicked as Player
@@ -29,12 +30,8 @@ object MissionGUIListener : Listener {
                 player.sendMessage("§e이미 완료된 미션입니다.")
             }
             Material.ARROW -> {
-                if (event.slot == 18) {
-                    player.sendMessage("§e왼쪽으로 이동")
-                }
-                else if (event.slot == 26) {
-                    player.sendMessage("§e오른쪽으로 이동")
-                }
+                if (event.slot == 18) GUIManager.previousPage(player)
+                else if (event.slot == 26) GUIManager.nextPage(player)
             }
             else -> {}
         }
